@@ -47,12 +47,15 @@ jobs:
       - run:
           name: Add build_rive.sh to $PATH
           command:  export PATH="$PATH:$(pwd)/submodules/rive-cpp/build"
+          working_directory: ~/project
       - run: 
           name: Build
           command: build_rive.sh release
+          working_directory: ~/project
       - run:
           name: Build for WebGL2
           command: build_rive.sh ninja wasm release
+          working_directory: ~/project
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
