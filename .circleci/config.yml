@@ -46,12 +46,12 @@ jobs:
           command: python3 -m pip install ply
       - run: 
           name: Build
-          command: 
+          command: |
             export PATH="$PATH:$(pwd)/submodules/rive-cpp/build"
             build_rive.sh release
       - run:
           name: Build for WebGL2
-          command: 
+          command: |
             export PATH="$PATH:$(pwd)/submodules/rive-cpp/build"
             build_rive.sh ninja wasm release
 
