@@ -1,0 +1,45 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/2.0/configuration-reference
+version: 2.1
+
+orbs:
+  macos: circleci/macos@2
+
+# Define a job to be invoked later in a workflow.
+# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
+jobs:
+  build:
+    macos:
+      xcode: "14.3.1"
+    resource_class: macos.x86.medium.gen2
+    environment:
+    steps:
+      - checkout:
+          path: ~/project
+      - attach_workspace:
+          at: ~/project
+      - run:
+          name: Init submodules
+          command: git submodule update --init --recursive
+      - run:
+          name: Build GLFW
+          command: cd submodules/rive-cpp/skia/dependencies && ./make_glfw.sh
+      - run:
+          name: Install Python PLY
+          command: python3 -m pip install ply
+      - run:
+          name: Add build_rive.sh to $PATH
+          command:  export PATH="$PATH:$(pwd)/submodules/rive-cpp/build"
+      - run: 
+          name: Build
+          command: build_rive.sh release
+      - run:
+          name: Build & serve for WebGL2
+          command: build_rive.sh ninja wasm release
+
+# Invoke jobs via workflows
+# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+workflows:
+  build-and-test:
+    jobs:
+      - build
