@@ -3,21 +3,25 @@
 version: 2.1
 
 orbs:
+  node: circleci/node@5.2.0
   macos: circleci/macos@2
 
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
   build:
-    macos:
-      xcode: "14.3.1"
-    resource_class: macos.m1.medium.gen1
+    docker:
+      - image: cimg/node:lts
     environment:
+      HOMEBREW_NO_AUTO_UPDATE: 1 ## no need to update homebrew
     steps:
       - checkout:
           path: ~/project
       - attach_workspace:
           at: ~/project
+      - run:
+          name: Install Softwares
+          command: apt install cmake
       - run:
           name: Init submodules
           command: git submodule update --init --recursive
@@ -34,7 +38,7 @@ jobs:
           name: Build
           command: build_rive.sh release
       - run:
-          name: Build & serve for WebGL2
+          name: Build for WebGL2
           command: build_rive.sh ninja wasm release
 
 # Invoke jobs via workflows
