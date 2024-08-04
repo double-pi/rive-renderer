@@ -11,7 +11,7 @@ orbs:
 jobs:
   build:
     docker:
-      - image: cimg/node:lts
+      - image: cimg/node:18.20
     environment:
       HOMEBREW_NO_AUTO_UPDATE: 1 ## no need to update homebrew
     steps:
@@ -21,13 +21,26 @@ jobs:
           at: ~/project
       - run:
           name: Install Softwares
-          command: apt install cmake
+          command: |
+            sudo apt update
+            sudo apt install libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
+            sudo apt install python3-pip
+            sudo apt install uuid-dev clang llvm ninja-build
+      -run:
+          name: Install Premake
+          command: |
+            wget https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-linux.tar.gz
+            tar -xvf premake-5.0.0-beta2-linux.tar.gz
+            sudo chmod a+x premake5
+            sudo mv premake5 /usr/local/bin/
+          working_directory: ~/
       - run:
           name: Init submodules
           command: git submodule update --init --recursive
       - run:
           name: Build GLFW
-          command: cd submodules/rive-cpp/skia/dependencies && ./make_glfw.sh
+          command: ./make_glfw.sh
+          working_directory: ~/project/submodules/rive-cpp/skia/dependencies
       - run:
           name: Install Python PLY
           command: python3 -m pip install ply
